@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "POS_processing",
+    "description": "POS file processing notebook. Reads a file and writes it to bronze layer"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "4a18d02a-ae69-87a6-416d-380b9f51d2d1"
+  }
+}
