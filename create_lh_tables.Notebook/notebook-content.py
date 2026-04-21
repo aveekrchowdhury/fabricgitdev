@@ -8,12 +8,12 @@
 # META   },
 # META   "dependencies": {
 # META     "lakehouse": {
-# META       "default_lakehouse": "1d610ecb-aa55-4c4e-be76-2335a5a874fb",
+# META       "default_lakehouse": "1a66d26a-a3e1-47d6-8e75-466457c017ae",
 # META       "default_lakehouse_name": "bronzelh",
-# META       "default_lakehouse_workspace_id": "f3a3d640-f8f5-4bf5-b208-eabda21ba6bb",
+# META       "default_lakehouse_workspace_id": "5369a871-dda0-48d9-b3a8-3265715b6190",
 # META       "known_lakehouses": [
 # META         {
-# META           "id": "1d610ecb-aa55-4c4e-be76-2335a5a874fb"
+# META           "id": "1a66d26a-a3e1-47d6-8e75-466457c017ae"
 # META         }
 # META       ]
 # META     }
@@ -380,69 +380,40 @@ print("-" * 60)
 
 # CELL ********************
 
-# Helper function to create example SQL script files
-# Uncomment and run this cell to create sample scripts for testing
+# This cell copies all .sql files from the notebook's resource 'builtin/scripts' folder to the Lakehouse Files/scripts folder.
+# It ensures the Lakehouse destination folder exists, then iterates through each .sql file in the source folder.
+# Each file's content is read and uploaded to the Lakehouse Files/scripts directory using notebookutils.fs.put.
+# After copying all files, it prints a success message for each and a summary completion message.
 
-def create_sample_scripts():
-    """
-    Create sample SQL script files in the builtin/scripts folder for demonstration.
-    """
-    # Ensure scripts folder exists
-    os.makedirs(scripts_folder, exist_ok=True)
-    
-    # Sample script 1: Customers table
-    customers_sql = """CREATE TABLE IF NOT EXISTS customers (
-    customer_id INT,
-    customer_name STRING,
-    email STRING,
-    phone STRING,
-    created_date TIMESTAMP
-) USING DELTA;"""
-    
-    # Sample script 2: Orders and order items tables
-    orders_sql = """CREATE TABLE IF NOT EXISTS orders (
-    order_id INT,
-    customer_id INT,
-    order_date TIMESTAMP,
-    total_amount DECIMAL(10,2),
-    status STRING
-) USING DELTA;
+import os
+import shutil
 
-CREATE TABLE IF NOT EXISTS order_items (
-    item_id INT,
-    order_id INT,
-    product_id INT,
-    quantity INT,
-    unit_price DECIMAL(10,2)
-) USING DELTA;"""
-    
-    # Sample script 3: Products table
-    products_sql = """CREATE TABLE IF NOT EXISTS products (
-    product_id INT,
-    product_name STRING,
-    category STRING,
-    price DECIMAL(10,2),
-    stock_quantity INT
-) USING DELTA;"""
-    
-    # Write the scripts
-    scripts = {
-        'create_customers_table.sql': customers_sql,
-        'create_orders_tables.sql': orders_sql,
-        'create_products_table.sql': products_sql
-    }
-    
-    for filename, content in scripts.items():
-        filepath = f"{scripts_folder}/{filename}"
-        with open(filepath, 'w') as f:
-            f.write(content)
-        print(f"✓ Created: {filename}")
-    
-    print(f"\n✓ Successfully created {len(scripts)} sample script files in '{scripts_folder}'")
-    print("You can now run the create_tables() function to execute these scripts.")
+# Paths
+lh_scripts_folder = "Files/lakehouse-ddl"
+src_folder = scripts_folder  # scripts_folder is defined earlier as the 'builtin/scripts' path
 
-# Uncomment the line below to create sample scripts
-create_sample_scripts()
+# Ensure Lakehouse Files/scripts folder exists
+notebookutils.fs.mkdirs(lh_scripts_folder)
+
+# List all .sql files in the builtin/scripts directory
+local_sql_files = [f for f in os.listdir(src_folder) if f.endswith('.sql')]
+
+if not local_sql_files:
+    print(f"No .sql files found in {src_folder}")
+else:
+    for filename in local_sql_files:
+        src_file = os.path.join(src_folder, filename)
+        dest_path = f"{lh_scripts_folder}/{filename}"
+        # Read content from local resource
+        with open(src_file, "r") as infile:
+            content = infile.read()
+        # Write to Lakehouse Files/scripts folder
+        notebookutils.fs.put(dest_path, content, overwrite=True)
+        print(f"✓ Copied {filename} to {dest_path}")
+
+    print(f"\nAll scripts have been copied to Lakehouse Files/scripts folder.")
+
+
 
 # METADATA ********************
 
